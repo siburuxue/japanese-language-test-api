@@ -73,7 +73,7 @@ class WxUserService extends CommonService
         }
         // 如果新用户，则注册后，设置登录状态过期世间
         // 如果不是新用户，则可能是换了手机登录，因为没有用token直接判断是否过期，所以同样设置登录状态过期时间,不管这个token是否过期
-        RedisConnection::init()->setex($token, Redis::EXPIRE, $wxUserId);
+        RedisConnection::init()->setex($token, Redis::EXPIRE, 1);
         return ['token' => $token, 'wxUserId' => $wxUserId];
     }
 
@@ -84,7 +84,11 @@ class WxUserService extends CommonService
      */
     public function checkLogin(float|bool|int|string $token)
     {
-        return RedisConnection::init()->exists($token);
+        $exist = RedisConnection::init()->exists($token);
+        if($exist){
+            RedisConnection::init()->setex($token, Redis::EXPIRE, 1);
+        }
+        return $exist;
     }
 
 
