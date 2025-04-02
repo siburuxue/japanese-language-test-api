@@ -5,6 +5,6 @@ controllers:
     type: attribute
 
 
-login-submit:
-    path: /login/submit
-    controller: App\Controller\LoginController::submit
+wx-user-login:
+    path: /wx-user/login
+    controller: App\Controller\WxUserController::login
