@@ -8,6 +8,7 @@ use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Table(name: 'wx_user')]
 #[ORM\Index(name: 'I_username', columns: ['username'])]
+#[ORM\Index(name: 'I_open_id', columns: ['open_id'])]
 #[ORM\Entity(repositoryClass: WxUserRepository::class)]
 class WxUser
 {
