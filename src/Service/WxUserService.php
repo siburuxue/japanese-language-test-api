@@ -22,6 +22,16 @@ class WxUserService extends CommonService
         $this->wxUserRepository = $doctrine->getRepository(WxUser::class);
     }
 
+    /**
+     * 小程序登录
+     * @param array $item
+     * @return array|\Exception
+     * @throws \Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface
+     * @throws \Symfony\Contracts\HttpClient\Exception\DecodingExceptionInterface
+     * @throws \Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface
+     * @throws \Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface
+     * @throws \Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface
+     */
     public function login(array $item): array|\Exception
     {
         $params = [
@@ -65,6 +75,16 @@ class WxUserService extends CommonService
         // 如果不是新用户，则可能是换了手机登录，因为没有用token直接判断是否过期，所以同样设置登录状态过期时间,不管这个token是否过期
         RedisConnection::init()->setex($token, Redis::EXPIRE, $wxUserId);
         return ['token' => $token, 'wxUserId' => $wxUserId];
+    }
+
+    /**
+     * 盐城是否在登录状态
+     * @param float|bool|int|string $token
+     * @return bool|int|\Redis
+     */
+    public function checkLogin(float|bool|int|string $token)
+    {
+        return RedisConnection::init()->exists($token);
     }
 
 

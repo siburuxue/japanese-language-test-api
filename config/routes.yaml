@@ -8,3 +8,6 @@ controllers:
 wx-user-login:
     path: /wx-user/login
     controller: App\Controller\WxUserController::login
+wx-user-check-login:
+    path: /wx-user/check-login
+    controller: App\Controller\WxUserController::checkLogin

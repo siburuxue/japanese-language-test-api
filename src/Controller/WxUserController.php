@@ -9,9 +9,9 @@ use Symfony\Component\HttpFoundation\Response;
 
 class WxUserController extends CommonController
 {
-    public function login(Request $request, WxUserService $loginService): Response
+    public function login(Request $request, WxUserService $wxUserService): Response
     {
-        $code = $request->request->get('code');
+        $code = $request->request->get('code', '');
         $username = $request->request->get('nickName', '');
         $avatarUrl = $request->request->get('avatarUrl', '');
         $gender = $request->request->get('gender', '');
@@ -35,11 +35,25 @@ class WxUserController extends CommonController
             'province' => $province,
             'country' => $country,
         ];
-        $rs = $loginService->login($data);
+        $rs = $wxUserService->login($data);
         if($rs instanceof \Exception){
             return $this->error($rs->getMessage());
         }else{
             return $this->success(Text::LOGIN_SUCCESS, $rs);
+        }
+    }
+
+    public function checkLogin(Request $request, WxUserService $wxUserService): Response
+    {
+        $token = $request->request->get('token', '');
+        if(empty($token)){
+            return $this->error("token 不能为空");
+        }
+        $rs = $wxUserService->checkLogin($token);
+        if($rs){
+            return $this->success(Text::LOGIN_NOT_EXPIRED);
+        }else{
+            return $this->success(Text::LOGIN_EXPIRED);
         }
     }
 }
