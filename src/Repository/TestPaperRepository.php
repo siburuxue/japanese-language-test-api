@@ -27,6 +27,6 @@ class TestPaperRepository extends ServiceEntityRepository
 
     public function list()
     {
-        return $this->createQueryBuilder('t')->where("t.isDel = ".Code::UN_DELETE);
+        return $this->createQueryBuilder('t')->where("t.isDel = " . Code::UN_DELETE);
     }
 }

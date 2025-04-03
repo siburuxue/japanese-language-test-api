@@ -14,3 +14,6 @@ wx-user-check-login:
 test-paper-list:
     path: /test-paper/list
     controller: App\Controller\TestPaperController::list
+test-paper-info:
+    path: /test-paper/info
+    controller: App\Controller\TestPaperController::info
