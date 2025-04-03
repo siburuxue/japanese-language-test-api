@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Lib\Tools;
+namespace App\Lib\Tool;
 
 class RedisConnection
 {

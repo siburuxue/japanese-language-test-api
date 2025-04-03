@@ -11,3 +11,6 @@ wx-user-login:
 wx-user-check-login:
     path: /wx-user/check-login
     controller: App\Controller\WxUserController::checkLogin
+test-paper-list:
+    path: /test-paper/list
+    controller: App\Controller\TestPaperController::list

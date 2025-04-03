@@ -10,11 +10,13 @@
         "doctrine/dbal": "^4.2",
         "doctrine/doctrine-bundle": "^2.13",
         "doctrine/orm": "^3.3",
+        "knplabs/knp-paginator-bundle": "^6.7",
         "siburuxue/doctrine-helper": "*",
         "symfony/console": "7.2.*",
         "symfony/dotenv": "7.2.*",
         "symfony/flex": "^2",
         "symfony/framework-bundle": "7.2.*",
+        "symfony/monolog-bundle": "^3.10",
         "symfony/runtime": "7.2.*",
         "symfony/yaml": "7.2.*"
     },

@@ -5,7 +5,7 @@ namespace App\Service;
 use App\Entity\WxUser;
 use App\Lib\Constant\Redis;
 use App\Lib\Constant\WeChat;
-use App\Lib\Tools\RedisConnection;
+use App\Lib\Tool\RedisConnection;
 use Doctrine\Persistence\ManagerRegistry;
 use Doctrine\Persistence\ObjectRepository;
 use Symfony\Component\HttpClient\HttpClient;
