@@ -20,3 +20,6 @@ test-paper-info:
 wx-user-answer:
     path: /wx-user/answer
     controller: App\Controller\WxUserController::answer
+get-user-paper-answer:
+    path: /test-paper/user-answer
+    controller: App\Controller\TestPaperController::userAnswer

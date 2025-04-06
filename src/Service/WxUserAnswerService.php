@@ -4,6 +4,7 @@ namespace App\Service;
 
 use App\Entity\WxUserAnswer;
 use App\Lib\Constant\Paper;
+use App\Lib\Tool\ArrayTool;
 use Doctrine\Persistence\ManagerRegistry;
 use Doctrine\Persistence\ObjectRepository;
 
@@ -56,6 +57,32 @@ class WxUserAnswerService
         }else{
             $data['id'] = $answer->getId();
             $this->wxUserAnswerRepository->update($data);
+        }
+    }
+
+    public function getAnswer(int $wxUserId, int $paperId, string $type)
+    {
+        $rs = $this->wxUserAnswerRepository->list([
+            'wxUserId' => $wxUserId,
+            'paperId' => $paperId,
+            'type' => $type,
+        ]);
+        if(empty($type)){
+            if(!empty($rs)){
+                $tmp = [];
+                foreach ($rs as $v) {
+                    $tmp += $v['answer'];
+                }
+                return $tmp;
+            }else{
+                return ArrayTool::getEmptyAssociativeArray();
+            }
+        }else{
+            if(!empty($rs)){
+                return $rs[0]['answer'];
+            }else{
+                return ArrayTool::getEmptyAssociativeArray();
+            }
         }
     }
 }

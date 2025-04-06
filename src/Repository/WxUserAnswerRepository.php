@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\WxUserAnswer;
+use App\Lib\Constant\Code;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 use Doctrine\Persistence\ObjectManager;
@@ -49,5 +50,20 @@ class WxUserAnswerRepository extends ServiceEntityRepository
 //        $answer->setUpdateTime(time());
         $this->manager->persist($answer);
         $this->manager->flush();
+    }
+
+    public function list(array $array): array
+    {
+        $db = $this->createQueryBuilder('t')->where("1 = 1");
+        if(isset($array['wxUserId'])){
+            $db->andWhere("t.wxUserId = :wxUserId")->setParameter("wxUserId", $array['wxUserId']);
+        }
+        if(isset($array['paperId'])){
+            $db->andWhere("t.paperId = :paperId")->setParameter("paperId", $array['paperId']);
+        }
+        if(isset($array['type']) && !empty($array['type'])){
+           $db->andWhere("t.type = :type")->setParameter("type", $array['type']);
+        }
+        return $db->getQuery()->getArrayResult();
     }
 }
