@@ -2,7 +2,9 @@
 
 namespace App\Controller;
 
+use App\Lib\Constant\Paper;
 use App\Lib\Constant\Text;
+use App\Service\WxUserAnswerService;
 use App\Service\WxUserService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -46,14 +48,43 @@ class WxUserController extends CommonController
     public function checkLogin(Request $request, WxUserService $wxUserService): Response
     {
         $token = $request->request->get('token', '');
+
+        // 验证
         if(empty($token)){
             return $this->error("token 不能为空");
         }
+
         $rs = $wxUserService->checkLogin($token);
         if($rs){
             return $this->success(Text::LOGIN_NOT_EXPIRED);
         }else{
             return $this->success(Text::LOGIN_EXPIRED);
         }
+    }
+
+    public function answer(Request $request, WxUserAnswerService $wxUserAnswerService): Response
+    {
+        $data = $request->request->all();
+
+        // 验证
+        if(empty($data['wxUserId'])){
+            return $this->error("wxUserId 不能为空");
+        }
+        if(empty($data['paperId'])){
+            return $this->error("paperId 不能为空");
+        }
+        if(!empty($type) && !in_array($type, Paper::TYPE)){
+            $msg = "type 类型必须为 ". implode(", ", Paper::TYPE). " 之一";
+            return $this->error($msg);
+        }
+        if(empty($data['answer'])){
+            return $this->error("answer 不能为空");
+        }
+        if(!json_validate($data['answer'])){
+            return $this->error("answer 必须为json格式");
+        }
+
+        $wxUserAnswerService->answer($data);
+        return $this->success();
     }
 }

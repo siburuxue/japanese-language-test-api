@@ -17,3 +17,6 @@ test-paper-list:
 test-paper-info:
     path: /test-paper/info
     controller: App\Controller\TestPaperController::info
+wx-user-answer:
+    path: /wx-user/answer
+    controller: App\Controller\WxUserController::answer
