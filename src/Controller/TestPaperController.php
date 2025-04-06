@@ -11,16 +11,16 @@ class TestPaperController extends CommonController
 {
     public function list(Request $request, TestPaperService $testPaperService): Response
     {
-        $page = $request->request->get('page', 1);
-        $limit = $request->request->get('limit', 10);
+        $page = $request->query->get('page', 1);
+        $limit = $request->query->get('limit', 10);
         $rs = $testPaperService->list((int)$page, (int)$limit);
         return $this->success(data: $rs);
     }
 
     public function info(Request $request, TestPaperService $testPaperService): Response
     {
-        $id = $request->request->get('id', 0);
-        $type = $request->request->get('type', '');
+        $id = $request->query->get('id', 0);
+        $type = $request->query->get('type', '');
 
         // 验证
         if(empty($id)){
