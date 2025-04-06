@@ -65,7 +65,8 @@ class WxUserController extends CommonController
     public function answer(Request $request, WxUserAnswerService $wxUserAnswerService): Response
     {
         $data = $request->request->all();
-
+        $type = $data['type'];
+        $answerTime = $data['answerTime'];
         // 验证
         if(empty($data['wxUserId'])){
             return $this->error("wxUserId 不能为空");
@@ -82,6 +83,16 @@ class WxUserController extends CommonController
         }
         if(!is_array($data['answer'])){
             return $this->error("answer 必须为json格式");
+        }
+
+        if(empty($answerTime)){
+            return $this->error("答题时长 不能为空");
+        }
+        if(!empty($type) && !is_numeric($answerTime)){
+            return $this->error("当答题类型不为空的时候，答题时长必须为秒为单位的数字");
+        }
+        if(empty($type) && !is_array($answerTime)){
+            return $this->error("当答题类型为空的时候，答题时长必须为答题类型为key的关联数组");
         }
 
         $wxUserAnswerService->answer($data);

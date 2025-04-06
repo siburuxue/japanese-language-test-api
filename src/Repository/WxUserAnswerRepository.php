@@ -46,7 +46,7 @@ class WxUserAnswerRepository extends ServiceEntityRepository
         $answer = $this->find($data['id']);
         $answer->setAnswer($data['answer']);
         $answer->setType($data['type']);
-        $answer->setUpdateTime(time());
+//        $answer->setUpdateTime(time());
         $this->manager->persist($answer);
         $this->manager->flush();
     }

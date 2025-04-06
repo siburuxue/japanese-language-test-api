@@ -3,9 +3,9 @@
 namespace App\Service;
 
 use App\Entity\WxUserAnswer;
+use App\Lib\Constant\Paper;
 use Doctrine\Persistence\ManagerRegistry;
 use Doctrine\Persistence\ObjectRepository;
-use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 class WxUserAnswerService
 {
@@ -19,6 +19,33 @@ class WxUserAnswerService
 
     public function answer(array $data): void
     {
+        $type = $data['type'];
+        if(empty($type)){
+            foreach (Paper::TYPE as $v) {
+                $tmp = [];
+                $tmp[$v] = $data['answer'][$v];
+                $item = [
+                    'wxUserId' => $data['wxUserId'],
+                    'paperId' => $data['paperId'],
+                    'type' => $v,
+                    'answerTime' => $data['answerTime'][$v],
+                    'answer' => $tmp
+                ];
+                $this->part($item);
+            }
+        }else{
+            $tmp = [];
+            $tmp[$type] = $data['answer'][$type];
+            $data['answer'] = $tmp;
+            if(is_array($data['answerTime'])){
+                $tmpAnswerTime = $data['answerTime'][$type];
+                $data['answerTime'] = $tmpAnswerTime;
+            }
+            $this->part($data);
+        }
+    }
+
+    private function part(array $data){
         $answer = $this->wxUserAnswerRepository->findOneBy([
             'wxUserId' => $data['wxUserId'],
             'paperId' => $data['paperId'],
@@ -31,6 +58,4 @@ class WxUserAnswerService
             $this->wxUserAnswerRepository->update($data);
         }
     }
-
-
 }
