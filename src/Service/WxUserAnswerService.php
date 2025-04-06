@@ -47,11 +47,34 @@ class WxUserAnswerService
     }
 
     private function part(array $data){
+        $type = $data['type'];
         $answer = $this->wxUserAnswerRepository->findOneBy([
             'wxUserId' => $data['wxUserId'],
             'paperId' => $data['paperId'],
-            'type' => $data['type'],
+            'type' => $type,
         ]);
+        $answerNum = 0;
+        if($type !== Paper::LANGUAGE_USAGE){
+            // listening, writing, reading 计算完成题目数量
+            foreach ($data['answer'][$type] as $datum) {
+                if(!empty($datum)){
+                    $answerNum++;
+                }
+            }
+        }else{
+            // language_usage 计算完成题目数量
+            foreach ($data['answer'][$type]['part1'] as $datum) {
+                if(!empty($datum)){
+                    $answerNum++;
+                }
+            }
+            foreach ($data['answer'][$type]['part2'] as $datum) {
+                if(!empty($datum)){
+                    $answerNum++;
+                }
+            }
+        }
+        $data['answerNum'] = $answerNum;
         if(empty($answer)){
             $this->wxUserAnswerRepository->insert($data);
         }else{

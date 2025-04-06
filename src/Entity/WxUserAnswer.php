@@ -28,8 +28,11 @@ class WxUserAnswer
     #[ORM\Column(name: "type", length: 255, nullable: true, options: ["comment" => "答案类型 listening writing reading language_usage"])]
     private ?string $type = null;
 
-    #[ORM\Column(name: "answer", type: Types::JSON, nullable: true, options: ["comment" => "学生答题内筒"])]
+    #[ORM\Column(name: "answer", type: Types::JSON, nullable: true, options: ["comment" => "学生答题内容"])]
     private ?array $answer = null;
+
+    #[ORM\Column(name: "answer_num", options: ["comment" => "答题数", "default" => 0])]
+    private ?int $answerNum = 0;
 
     #[ORM\Column(name: "answer_time", options: ["comment" => "学生作答时长 秒为单位", "default" => 0])]
     private ?int $answerTime = 0;
@@ -92,6 +95,18 @@ class WxUserAnswer
     public function setAnswer(?array $answer): static
     {
         $this->answer = $answer;
+
+        return $this;
+    }
+
+    public function getAnswerNum(): ?int
+    {
+        return $this->answerNum;
+    }
+
+    public function setAnswerNum(int $answerNum): static
+    {
+        $this->answerNum = $answerNum;
 
         return $this;
     }

@@ -33,6 +33,7 @@ class WxUserAnswerRepository extends ServiceEntityRepository
         $answer->setWxUserId($data['wxUserId']);
         $answer->setType($data['type']);
         $answer->setAnswer($data['answer']);
+        $answer->setAnswerNum($data['answerNum']);
         $answer->setAnswerTime($data['answerTime']);
         $answer->setInsertDate(date('Y-m-d'));
         $answer->setInsertTime(time());
@@ -47,7 +48,7 @@ class WxUserAnswerRepository extends ServiceEntityRepository
         $answer = $this->find($data['id']);
         $answer->setAnswer($data['answer']);
         $answer->setType($data['type']);
-//        $answer->setUpdateTime(time());
+        $answer->setAnswerNum($data['answerNum']);
         $this->manager->persist($answer);
         $this->manager->flush();
     }
