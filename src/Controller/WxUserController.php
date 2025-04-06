@@ -80,7 +80,7 @@ class WxUserController extends CommonController
         if(empty($data['answer'])){
             return $this->error("answer 不能为空");
         }
-        if(!json_validate($data['answer'])){
+        if(!is_array($data['answer'])){
             return $this->error("answer 必须为json格式");
         }
 
