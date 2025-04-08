@@ -113,4 +113,9 @@ class WxUserAnswerService
     {
         return $this->wxUserAnswerRepository->getConsecutiveAnsweringDays($wxUserId);
     }
+
+    public function getAllAnswerCount(int $wxUserId)
+    {
+        return $this->wxUserAnswerRepository->getAllAnswerCount($wxUserId);
+    }
 }

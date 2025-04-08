@@ -88,4 +88,14 @@ EOF;
         $rs = $conn->executeQuery($sql, ['wxUserId' => $wxUserId])->fetchAllAssociative();
         return $rs[0]['num'];
     }
+
+    public function getAllAnswerCount(int $wxUserId): int
+    {
+        return $this->createQueryBuilder('t')
+            ->where("t.wxUserId = :wxUserId")
+            ->setParameter("wxUserId", $wxUserId)
+            ->select('sum(t.answerNum)')
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
 }
