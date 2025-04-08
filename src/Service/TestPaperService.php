@@ -5,6 +5,7 @@ namespace App\Service;
 use App\Entity\TestPaper;
 use App\Lib\Constant\Code;
 use App\Lib\Tool\ArrayTool;
+use App\Lib\Tool\OssTool;
 use Doctrine\Persistence\ManagerRegistry;
 use Doctrine\Persistence\ObjectRepository;
 use Knp\Component\Pager\PaginatorInterface;
@@ -42,6 +43,9 @@ class TestPaperService
                 'id' => $rs->getId(),
                 'title' => $rs->getTitle(),
             ];
+            if(!empty($rs->getListeningRecording())){
+                $data['listeningRecording'] = $this->getOssUrl($rs->getListeningRecording());
+            }
             $json = $rs->getTestPaperJson();
             if(empty($type)){
                 $data['json'] = $json['output'];
@@ -52,5 +56,11 @@ class TestPaperService
             $data = ArrayTool::getEmptyAssociativeArray();
         }
         return $data;
+    }
+
+    private function getOssUrl(string $url): array|string
+    {
+        $ossTokenConfig = OssTool::getDefaultOssSTSToken();
+        return OssTool::getSignUrl($url, $ossTokenConfig);
     }
 }
