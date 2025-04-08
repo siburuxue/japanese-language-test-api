@@ -5,6 +5,7 @@ namespace App\Repository;
 use App\Entity\WxUserAnswer;
 use App\Lib\Constant\Code;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\DBAL\Exception;
 use Doctrine\Persistence\ManagerRegistry;
 use Doctrine\Persistence\ObjectManager;
 
@@ -68,6 +69,12 @@ class WxUserAnswerRepository extends ServiceEntityRepository
         return $db->getQuery()->getArrayResult();
     }
 
+    /**
+     * 连续答题天数统计
+     * @param int $wxUserId 微信用户ID
+     * @return mixed
+     * @throws \Doctrine\DBAL\Exception
+     */
     public function getConsecutiveAnsweringDays(int $wxUserId)
     {
         $conn = $this->getEntityManager()->getConnection();
@@ -89,6 +96,11 @@ EOF;
         return $rs[0]['num'];
     }
 
+    /**
+     * 所有答题数统计
+     * @param int $wxUserId 微信用户ID
+     * @return int
+     */
     public function getAllAnswerCount(int $wxUserId): int
     {
         return $this->createQueryBuilder('t')
@@ -97,5 +109,30 @@ EOF;
             ->select('sum(t.answerNum)')
             ->getQuery()
             ->getSingleScalarResult();
+    }
+
+    /**
+     * 每日任务统计
+     * @param int $wxUserId 微信用户ID
+     * @param string $date 当前日期
+     * @return array|false
+     * @throws Exception
+     */
+    public function dailyQuests(int $wxUserId, string $date): array|false
+    {
+        $conn = $this->getEntityManager()->getConnection();
+
+        $sql = <<<EOF
+select ifnull(sum(case when type = 'listening' then 1 else 0 end), 0) > 0     as listening
+       ,ifnull(sum(case when type = 'writing' then 1 else 0 end), 0)  > 0       as writing
+       ,ifnull(sum(case when type = 'reading' then 1 else 0 end), 0)  > 0       as reading
+       ,ifnull(sum(case when type = 'language_usage' then 1 else 0 end), 0) > 0 as language_usage
+        ,floor(ifnull(sum(answer_time), 0) / 60) as answer_time
+from wx_user_answer
+where wx_user_id = :wxUserId
+and insert_date = :insertDate
+
+EOF;
+        return $conn->executeQuery($sql, ['wxUserId' => $wxUserId, 'insertDate' => $date])->fetchAssociative();
     }
 }

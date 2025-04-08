@@ -5,6 +5,7 @@ namespace App\Service;
 use App\Entity\WxUserAnswer;
 use App\Lib\Constant\Paper;
 use App\Lib\Tool\ArrayTool;
+use Doctrine\DBAL\Exception;
 use Doctrine\Persistence\ManagerRegistry;
 use Doctrine\Persistence\ObjectRepository;
 
@@ -109,13 +110,36 @@ class WxUserAnswerService
         }
     }
 
+    /**
+     * 连续答题天数统计
+     * @param int $wxUserId 微信用户ID
+     * @return mixed
+     * @throws \Doctrine\DBAL\Exception
+     */
     public function getConsecutiveAnsweringDays(int $wxUserId)
     {
         return $this->wxUserAnswerRepository->getConsecutiveAnsweringDays($wxUserId);
     }
 
-    public function getAllAnswerCount(int $wxUserId)
+    /**
+     * 所有答题数统计
+     * @param int $wxUserId 微信用户ID
+     * @return int
+     */
+    public function getAllAnswerCount(int $wxUserId): int
     {
         return $this->wxUserAnswerRepository->getAllAnswerCount($wxUserId);
+    }
+
+    /**
+     * 每日任务统计
+     * @param int $wxUserId 微信用户ID
+     * @param string $date 当前日期
+     * @return array|false
+     * @throws Exception
+     */
+    public function getDailyQuests(int $wxUserId, string $date): false|array
+    {
+        return $this->wxUserAnswerRepository->dailyQuests($wxUserId, $date);
     }
 }
