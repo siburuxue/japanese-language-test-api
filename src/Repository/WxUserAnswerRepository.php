@@ -67,4 +67,25 @@ class WxUserAnswerRepository extends ServiceEntityRepository
         }
         return $db->getQuery()->getArrayResult();
     }
+
+    public function getConsecutiveAnsweringDays(int $wxUserId)
+    {
+        $conn = $this->getEntityManager()->getConnection();
+
+        $sql = <<<EOF
+select count(distinct insert_date) as num
+from wx_user_answer
+where insert_date > (select ifnull(max(C.insert_date_A),'1970-01-01')
+             from (select A.insert_date as insert_date_A,
+                          datediff(B.insert_date, A.insert_date) as diff
+                   from (select insert_date, row_number() over (order by insert_date) as num
+                         from (select distinct insert_date from wx_user_answer where wx_user_id = :wxUserId) l ) A
+                      , (select insert_date, row_number() over (order by insert_date) as num
+                         from (select distinct insert_date from wx_user_answer where wx_user_id = :wxUserId) l ) B
+                   where B.num = 1 + A.num) C
+             where C.diff > 1)  and wx_user_id = :wxUserId
+EOF;
+        $rs = $conn->executeQuery($sql, ['wxUserId' => $wxUserId])->fetchAllAssociative();
+        return $rs[0]['num'];
+    }
 }

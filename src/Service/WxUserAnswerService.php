@@ -108,4 +108,9 @@ class WxUserAnswerService
             }
         }
     }
+
+    public function getConsecutiveAnsweringDays(int $wxUserId)
+    {
+        return $this->wxUserAnswerRepository->getConsecutiveAnsweringDays($wxUserId);
+    }
 }
