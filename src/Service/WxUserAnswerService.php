@@ -15,12 +15,15 @@ class WxUserAnswerService
 
     public function __construct(
         private ManagerRegistry $doctrine,
+        private TestPaperService $testPaperService,
+        private WxUserErrorAnswerService $wxUserErrorAnswerService,
     ) {
         $this->wxUserAnswerRepository = $doctrine->getRepository(WxUserAnswer::class);
     }
 
     public function answer(array $data): void
     {
+        $paperInfo = $this->testPaperService->info($data['paperId']);
         $type = $data['type'];
         if(empty($type)){
             foreach (Paper::TYPE as $v) {
@@ -33,7 +36,10 @@ class WxUserAnswerService
                     'answerTime' => $data['answerTime'][$v],
                     'answer' => $tmp
                 ];
-                $this->part($item);
+                $id = $this->part($item);
+                $item['wxUserAnswerId'] = $id;
+                // 判分
+                $this->scoring($item, $paperInfo[$v]);
             }
         }else{
             $tmp = [];
@@ -43,11 +49,78 @@ class WxUserAnswerService
                 $tmpAnswerTime = $data['answerTime'][$type];
                 $data['answerTime'] = $tmpAnswerTime;
             }
-            $this->part($data);
+            $id = $this->part($data);
+            $data['wxUserAnswerId'] = $id;
+            // 判分
+            $this->scoring($data, $paperInfo[$type]);
         }
     }
 
-    private function part(array $data){
+    /**
+     * 判分
+     * @param array $data 答题内容
+     * @param array $paper 试卷内容
+     * @var $data1 $data = ['wxUserId' => 1, 'paperId' => 1, 'type'=> 'listening', 'answerId' => 1, answer = {"listening": {"1": "A", "2": "B", "3": "B", "4": "A", "5": "C"}}]
+     * @var $data2 $data = ['wxUserErrorAnswerId' => 1, answer = {"listening": {"1": "A", "2": "B", "3": "B", "4": "A", "5": "C"}}];
+     * @return void
+     */
+    public function scoring(array $data, array $paper)
+    {
+        if($data['type'] === Paper::LISTENING){
+            $this->listeningScoring($data, $paper);
+        }else if($data['type'] === Paper::READING){
+            $this->readingScoring($data, $paper);
+        }else if($data['type'] === Paper::LANGUAGE_USAGE){
+            $this->languageUsageScoring($data, $paper);
+        }else{
+            $this->writingScoring($data, $paper);
+        }
+    }
+
+    private function listeningScoring(array $data, array $paper)
+    {
+        $listeningMap = array_column($paper, "answer", "q_no");
+        $errorQuestionId = [];
+        $errorQuestionNum = 0;
+        foreach ($data['listening'] as $k => $v) {
+            if($v !== $listeningMap[$k]){
+                $errorQuestionId[] = $k;
+                $errorQuestionNum++;
+            }
+        }
+        if($errorQuestionNum > 0){
+            if(isset($data['wxUserErrorAnswerId'])){
+                $this->wxUserErrorAnswerService->update([
+                    'id' => $data['wxUserErrorAnswerId'],
+                    'errorQuestionId' => $errorQuestionId,
+                ]);
+            }else{
+                $this->wxUserErrorAnswerService->insert([
+                    'wxUserId' => $data['wxUserId'],
+                    'paperId' => $data['paperId'],
+                    'type' => $data['type'],
+                    'wxUserAnswerId' => $data['wxUserAnswerId'],
+                    'errorQuestionId' => $errorQuestionId,
+                    'errorQuestionNum' => $errorQuestionNum,
+                ]);
+            }
+        }
+    }
+
+    private function readingScoring(array $data, array $paper)
+    {
+    }
+
+    private function languageUsageScoring(array $data, array $paper)
+    {
+    }
+
+    private function writingScoring(array $data, array $paper)
+    {
+    }
+
+    private function part(array $data)
+    {
         $type = $data['type'];
         $answer = $this->wxUserAnswerRepository->findOneBy([
             'wxUserId' => $data['wxUserId'],
@@ -77,11 +150,12 @@ class WxUserAnswerService
         }
         $data['answerNum'] = $answerNum;
         if(empty($answer)){
-            $this->wxUserAnswerRepository->insert($data);
+            $id = $this->wxUserAnswerRepository->insert($data);
         }else{
-            $data['id'] = $answer->getId();
+            $id = $data['id'] = $answer->getId();
             $this->wxUserAnswerRepository->update($data);
         }
+        return $id;
     }
 
     public function getAnswer(int $wxUserId, int $paperId, string $type)

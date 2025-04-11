@@ -16,7 +16,7 @@ class TestPaperService
 
 
     public function __construct(
-        ManagerRegistry $doctrine,
+        ManagerRegistry            $doctrine,
         private PaginatorInterface $paginator,
     )
     {
@@ -27,7 +27,7 @@ class TestPaperService
     {
         $db = $this->testPaperRepository->list();
         $rs = $this->paginator->paginate($db, $page, $limit);
-        return array_map(function ($v){
+        return array_map(function ($v) {
             return [
                 'id' => $v->getId(),
                 'title' => $v->getTitle(),
@@ -35,24 +35,24 @@ class TestPaperService
         }, $rs->getItems());
     }
 
-    public function info(int $id, string $type): array
+    public function info(int $id, string $type = ''): array
     {
         $rs = $this->testPaperRepository->findOneBy(['id' => $id, 'isDel' => Code::UN_DELETE]);
-        if(!empty($rs)){
+        if (!empty($rs)) {
             $data = [
                 'id' => $rs->getId(),
                 'title' => $rs->getTitle(),
             ];
-            if(!empty($rs->getListeningRecording())){
+            if (!empty($rs->getListeningRecording())) {
                 $data['listeningRecording'] = $this->getOssUrl($rs->getListeningRecording());
             }
             $json = $rs->getTestPaperJson();
-            if(empty($type)){
+            if (empty($type)) {
                 $data['json'] = $json['output'];
-            }else{
+            } else {
                 $data['json'] = ["{$type}" => $json['output'][$type]];
             }
-        }else{
+        } else {
             $data = ArrayTool::getEmptyAssociativeArray();
         }
         return $data;
