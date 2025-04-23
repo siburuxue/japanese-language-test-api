@@ -5,6 +5,7 @@ namespace App\Repository;
 use App\Entity\WxUserErrorAnswer;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use Doctrine\Persistence\ObjectManager;
 
 /**
  * @extends ServiceEntityRepository<WxUserErrorAnswer>
@@ -16,33 +17,37 @@ use Doctrine\Persistence\ManagerRegistry;
  */
 class WxUserErrorAnswerRepository extends ServiceEntityRepository
 {
+    private ObjectManager $manager;
+
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, WxUserErrorAnswer::class);
+        $this->manager = $registry->getManager();
     }
 
-//    /**
-//     * @return WxUserErrorAnswer[] Returns an array of WxUserErrorAnswer objects
-//     */
-//    public function findByExampleField($value): array
-//    {
-//        return $this->createQueryBuilder('a')
-//            ->andWhere('a.exampleField = :val')
-//            ->setParameter('val', $value)
-//            ->orderBy('a.id', 'ASC')
-//            ->setMaxResults(10)
-//            ->getQuery()
-//            ->getResult()
-//        ;
-//    }
+    public function insert(array $array)
+    {
+        $error = new WxUserErrorAnswer();
+        $error->setWxUserId($array['wxUserId']);
+        $error->setPaperId($array['paperId']);
+        $error->setType($array['type']);
+        $error->setWxUserAnswerId($array['wxUserAnswerId']);
+        $error->setErrorQuestionId($array['errorQuestionId']);
+        $error->setErrorQuestionNum($array['errorQuestionNum']);
+        $error->setInsertTime(time());
+        $error->setUpdateTime(time());
+        $this->manager->persist($error);
+        $this->manager->flush();
+        return $error->getId();
+    }
 
-//    public function findOneBySomeField($value): ?WxUserErrorAnswer
-//    {
-//        return $this->createQueryBuilder('a')
-//            ->andWhere('a.exampleField = :val')
-//            ->setParameter('val', $value)
-//            ->getQuery()
-//            ->getOneOrNullResult()
-//        ;
-//    }
+    public function update(array $array)
+    {
+        $error = $this->find($array['id']);
+        $error->setErrorQuestionId($array['errorQuestionId']);
+        $error->setUpdateTime(time());
+        $this->manager->persist($error);
+        $this->manager->flush();
+        return $error->getId();
+    }
 }

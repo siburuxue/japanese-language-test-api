@@ -18,12 +18,12 @@ class WxUserErrorAnswerService
 
     public function update(array $array)
     {
-
+        return $this->wxUserErrorAnswerRepository->update($array);
     }
 
     public function insert(array $array)
     {
-
+        return $this->wxUserErrorAnswerRepository->insert($array);
     }
 
 

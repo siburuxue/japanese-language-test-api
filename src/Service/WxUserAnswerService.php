@@ -60,8 +60,8 @@ class WxUserAnswerService
      * 判分
      * @param array $data 答题内容
      * @param array $paper 试卷内容
-     * @var $data1 $data = ['wxUserId' => 1, 'paperId' => 1, 'type'=> 'listening', 'answerId' => 1, answer = {"listening": {"1": "A", "2": "B", "3": "B", "4": "A", "5": "C"}}]
-     * @var $data2 $data = ['wxUserErrorAnswerId' => 1, answer = {"listening": {"1": "A", "2": "B", "3": "B", "4": "A", "5": "C"}}];
+     * @var $data ['wxUserId' => 1, 'paperId' => 1, 'type'=> 'listening', 'answerId' => 1, answer = {"listening": {"1": "A", "2": "B", "3": "B", "4": "A", "5": "C"}}] or ['wxUserErrorAnswerId' => 1, 'type' => 'listening', answer = {"listening": {"1": "A", "2": "B", "3": "B", "4": "A", "5": "C"}}]
+     * @var $paper {"listening":[{"q_no":"1","answer":"B","options":[{"text":"チャーハン","letter":"A"},{"text":"チャーシュー","letter":"B"},{"text":"ギョーザ","letter":"C"}],"question":"男の人は何を作りましたか。"}]}
      * @return void
      */
     public function scoring(array $data, array $paper)
@@ -88,13 +88,15 @@ class WxUserAnswerService
                 $errorQuestionNum++;
             }
         }
-        if($errorQuestionNum > 0){
-            if(isset($data['wxUserErrorAnswerId'])){
-                $this->wxUserErrorAnswerService->update([
-                    'id' => $data['wxUserErrorAnswerId'],
-                    'errorQuestionId' => $errorQuestionId,
-                ]);
-            }else{
+        // 如果是错题表答题逻辑，直接更新
+        // 如果是最开始答题判分逻辑，在有错题的情况下添加数据
+        if(!empty($data['wxUserErrorAnswerId'])){
+            $this->wxUserErrorAnswerService->update([
+                'id' => $data['wxUserErrorAnswerId'],
+                'errorQuestionId' => $errorQuestionId,
+            ]);
+        }else{
+            if($errorQuestionNum > 0){
                 $this->wxUserErrorAnswerService->insert([
                     'wxUserId' => $data['wxUserId'],
                     'paperId' => $data['paperId'],
