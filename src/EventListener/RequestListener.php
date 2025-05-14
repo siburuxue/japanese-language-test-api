@@ -24,15 +24,18 @@ class RequestListener
             }
         }
         $request = $event->getRequest();
-        $token = $request->headers->get("token", "");
-        if(empty($token)){
-            $response = new JsonResponse(['msg' => 'token不能为空'], Response::HTTP_FORBIDDEN);
-            $event->setResponse($response);
-        }else{
-            $exist = RedisConnection::init()->exists($token);
-            if(!$exist){
-                $response = new JsonResponse(['msg' => Text::LOGIN_EXPIRED], Response::HTTP_FORBIDDEN);
+        $routeName = $request->attributes->get('_route');
+        if($routeName != "wx-user-login" && $routeName != "wx-user-check-login"){
+            $token = $request->headers->get("token", "");
+            if(empty($token)){
+                $response = new JsonResponse(['msg' => 'token不能为空'], Response::HTTP_FORBIDDEN);
                 $event->setResponse($response);
+            }else{
+                $exist = RedisConnection::init()->exists($token);
+                if(!$exist){
+                    $response = new JsonResponse(['msg' => Text::LOGIN_EXPIRED], Response::HTTP_FORBIDDEN);
+                    $event->setResponse($response);
+                }
             }
         }
     }
